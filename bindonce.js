@@ -34,14 +34,17 @@
 	var bindonceDirective =
 	{
 		restrict: "AM",
+		// $interpolate 插值 service
 		controller: ['$scope', '$element', '$attrs', '$interpolate', function($scope, $element, $attrs, $interpolate) 
 		{
+			// 显示 隐藏
 			var showHideBinder = function(elm, attr, value) 
 			{
 				var show = (attr == 'show') ? '' : 'none';
 				var hide = (attr == 'hide') ? '' : 'none';
 				elm.css('display', toBoolean(value) ? show : hide);
 			}
+			// class
 			var classBinder = function(elm, value)
 			{
 				if (angular.isObject(value) && !angular.isArray(value)) 
@@ -82,11 +85,14 @@
 
 				setupWatcher : function(bindonceValue) 
 				{
+					// watch 等待值
 					var that = this;
+					// $watch返回一个取消watch的listener
 					this.watcherRemover = $scope.$watch(bindonceValue, function(newValue) 
 					{
 						if (newValue == undefined) return;
 						that.removeWatcher();
+						// 此时才开始bind
 						that.runBinders();
 					}, true);
 				},
@@ -95,6 +101,7 @@
 				{
 					if (this.watcherRemover != undefined)
 					{
+						// 取消 watch
 						this.watcherRemover();
 						this.watcherRemover = undefined;
 					}
@@ -107,6 +114,11 @@
 					{
 						var binder = this.binders[i];
 						if (this.group && this.group != binder.group ) continue;
+						// 利用 scope $eval 进行求值
+						// 只有这一次 没有其他bind
+						// 插值 {{}} 这样的
+						// http://docs.angularjs.org/api/ng.$interpolateProvider
+						// $interpolate 编译一个字符串,标记成一个插值函数
 						var value = binder.scope.$eval((binder.interpolate) ? $interpolate(binder.value) : binder.value);
 						switch(binder.attr)
 						{
@@ -177,12 +189,14 @@
 		link: function(scope, elm, attrs, bindonceController) 
 		{
 			var value = (attrs.bindonce) ? scope.$eval(attrs.bindonce) : true;
+			// 如果此时已经有值了 
 			if (value != undefined)
 			{
 				bindonceController.runBinders();
 			}
 			else
 			{
+				// 没有值 watch bindonce 等待有数据
 				bindonceController.setupWatcher(attrs.bindonce);
 				elm.bind("$destroy", bindonceController.removeWatcher);
 			}
@@ -192,6 +206,7 @@
 	return bindonceDirective;
 });
 
+// 集体造指令了。。。
 angular.forEach(
 [
 	{directiveName:'boShow', attribute: 'show'},
