@@ -87,7 +87,7 @@
 				{
 					// watch 等待值
 					var that = this;
-					// $watch返回一个取消watch的listener
+					// $watch返回一个取消 watch 的listener
 					this.watcherRemover = $scope.$watch(bindonceValue, function(newValue) 
 					{
 						if (newValue == undefined) return;
